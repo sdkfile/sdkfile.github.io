@@ -1,0 +1,284 @@
+---
+layout: post
+title: '2021-01-17 알고리즘 공부'
+subtitle: '완전 탐색 관련 문제들과 코드'
+categories: algorithm
+tags: apss
+comments: true
+---
+
+# APSS 챕터 6
+
+## 코드 1
+
+### 1에서 n까지의 합을 계산하는 반복 함수와 재귀함수
+
+```cpp
+
+// 반복 함수
+// 필수조건: n >= 1
+// 결과: 1부터 n까지의 합을 반환한다.
+// 시간복잡도: O(n)
+int sum(int n){
+    int ret = 0;
+    for (int i = 1; i <= n; ++i){
+        ret += i;
+    }
+    return ret;
+}
+
+// 재귀함수
+// 필수 조건: n >= 1
+// 결과: 1부터 n까지의 합을 반환한다.
+// 시간복잡도: O(n)
+// NOTE: 재귀함수는 점화식 형태로 나타낼 수 있는 방정식에서 사용할 수 있는 것 같다.
+int recursiveSum(int n){
+    if (n == 1) return 1; // 기저 상태 (Base Case)
+    return n + recursiveSum(n - 1);
+}
+```
+
+## 코드 2
+
+### n개의 원소 중 m개를 고르는 모든 조합을 찾는 알고리즘
+
+```cpp
+// n: 전체 원소의 수
+// picked: 지금까지 고른 원소들의 번호
+// toPick: 앞으로 더 고를 원소의 수
+// 일때 toPick개의 원소를 고르는 모든 방법
+
+void pick(int n, vector<int> &picked, int toPick){
+    // 기저 사례: 더 고를 원소가 없을 때 고른 원소들을 반환 벡터에 추가한다.
+    if (toPick == 0){ Code6::pickOutput.push_back(picked); return;}
+    // 고를 수 있는 가장 작은 번호를 계산한다.
+    int smallest = picked.empty() ? 0 : picked.back() + 1;
+    // 이 단계에서 원소 하나를 고른다.
+    for (int next = smallest; next < n; ++next){
+        picked.push_back(next);
+        pick(n, picked, toPick - 1);
+        picked.pop_back();
+    }
+}
+```
+
+## 코드 3
+
+### Boggle 게임에서 단어를 찾을 수 있는지 여부를 반환하는 함수를 짜는 문제
+
+```cpp
+// dx와 dy는 다음에 찾아야 할 칸의 상대적 위치를 저장하는 배열
+const int dx[8] = { -1, -1, -1,  1,  1,  1,  0,  0 };
+const int dy[8] = { -1,  0,  1, -1,  0,  1, -1,  1 };
+
+// 5x5의 보글 게임 판의 해당 위치에서 주어진 단어가 시작하는지를 반환
+bool hasWord(int y, int x, const string &word){
+    // 기저사례 1: 시작 위치가 범위 밖이면 무조건 실패
+    if (!Code6::inRange(y, x)) return false;
+    // 기저사례 2: 첫 글자가 일치하지 않으면 싶패
+    if (Code6::board[y][x] != word[0]) return false;
+    // 기저사례 3: 단어 길이가 1이면 성공
+    if (word.size() == 1) return true;
+    // 인접한 여덟 칸을 검사한다.
+    for (int direction = 0; direction < 8; ++direction){
+        int nextY = y + dy[direction], nextX = x + dx[direction];
+        // 다음칸이 번위에 있는지 첫 글자는 일치하는지 여부는 함수 안에서 확인해준다.
+        if (hasWord(nextY, nextX, word.substr(1)))
+            return true;
+    }
+    return false;
+}
+bool inRange(int y, int x){
+    if (y <= 0 || y > Code6::board.size() || x <= 0 || x > Code6::board[y].size())
+        return false;
+    return true;
+}
+```
+
+## 중간 노트
+### 완전 탐색 레시피
+- 완전탐색은 존재하는 모든 답을 하나씩 검사하므로, 걸리는 시간은 가능한 답의 수에 정확히 비례한다. 최대 크기의 입력을 가정했을 떄 답의 개수를 계산하고, 이들을 모두 제한 시간 안에 생성할 수 있을지를 가늠한다. 만약 시간 안에 계산할 수 없다면 다른 설계 패러다임을 적용해야한다.
+- 가능한 모든 답의 후보를 만드는 과정을 여러 개의 선택으로 나눈다. 각 선택은 답의 후보를 만드는 과정의 한 조각이 된다.
+- 그 중 하나의 조각을 선택해 답의 일부를 만들고, 나머지 답을 재귀호출을 통해 완성한다.
+- 조각이 하나밖에 남지 않은 경우, 혹은 하나도 남지 않은 경우에는 답을 생성했으므로, 이것을 기저사례로 선택해서 처리한다.
+- 특히, 답을 중복으로 세는 상황을 막기 위해서 같은 답 중에서 사전 순으로 먼저 오는 답 하나만을 세는 방법을 택하는 것이 좋다.
+
+## 코드 4
+
+### 소풍 문제를 해결하는 재귀호출 코드
+
+```cpp
+int n;
+bool areFriends[10][10];
+// taken[i] = i번째 학생이 짝을 이미 찾았으면 true, 아니면 false
+int countPairngs(bool taken[10]){
+    // 남은 학생들 중 가장 번호가 빠른 학생을 찾는다.
+    int firstFree = -1;
+    for (int i = 0; i < n; ++i){
+        if (!taken[i]){
+            firstFree = i;
+            break;
+        }
+    }
+    // 기저사례: 모든 학생이 짝을 찾았으면 한 가지 방법을 찾았으니 종료한다.
+    if (firstFree == -1) return 1;
+    int ret = 0;
+    // 이 학생과 짝지을 학생을 결정한다.
+    for (int pairWith = firstFree + 1; pairWith < n; ++pairWith){
+        if (!taken[pairWith] && areFriends[firstFree][pairWith]){
+            taken[firstFree] = taken[pairWith] = true;
+            ret += countPairngs(taken);
+            taken[firstFree] = taken[pairWith] = false;
+        }
+    }
+    return ret;
+}
+```
+
+## 코드 5
+
+### 게임판 덮기 문제를 해결하는 재귀 호출 알고리즘
+
+```cpp
+// 주어진 칸을 덮을 수 있는 네 가지 방법
+// 블록을 구성하는 세 칸의 상대적 위치 (dy, dx)의 목록
+
+const int coverType[4][3][2] = {
+    { { 0, 0 }, { 1, 0 }, { 0, 1 } },
+    { { 0, 0 }, { 0, 1 }, { 1, 1 } },
+    { { 0, 0 }, { 1, 0 }, { 1, 1 } },
+    { { 0, 0 }, { 1, 0 }, { 1, -1 } }
+};
+// board의 (y, x)를 type번 방법으로 덮거나, 덮었던 블록을 없앤다.
+// delta = 1이면 덮고, -1이면 덮었던 블록을 없앤다.
+// 만약 블록이 제대로 덮이지 않은 경우 (게임판 밖으로 나가거나,
+// 겹치거나, 검은 칸을 덮을 때) false를 반환한다.
+
+bool set(vector<vector<int> > &board, int y, int x, int type, int delta){
+    bool ok = true;
+    for (int i = 0; i < 3; ++i){
+        const int ny = y + coverType[type][i][0];
+        const int nx = x + coverType[type][i][1];
+        if (ny < 0 || ny >= board.size() || nx < 0 || nx >= board[0].size())
+            ok = false;
+        else if ((board[ny][nx] += delta) > 1)
+            ok = false;
+    }
+    return ok;
+}
+
+// board의 모든 빈 칸을 덮을 수 있는 방법의 수를 반환한다.
+// board[i][j] = 1 이미 덮인 칸 혹은 검은 칸
+// board[i][j] = 0 아직 덮이지 않은 칸
+int cover(vector<vector<int> > &board){
+    // 아직 채우지 못한 칸 중 가장 윗줄 왼쪽에 있는 칸을 찾는다.
+    int y = -1, x = -1;
+    for (int i = 0; i < board.size(); ++i){
+        for (int j = 0; j < board[i].size(); ++j){
+            if (board[i][j] == 0){
+                y = i;
+                x = j;
+                break;
+            }
+        }
+        if (y != -1) break;
+    }
+    // 기저사례: 모든 칸을 채웠으면 1을 반환한다.
+    if (y == -1) return 1;
+    int ret = 0;
+    for (int type = 0; type < 4; ++type){
+        // 만약 board[y][x]를 type 형태로 덮을 수 있으면 재귀 호출한다.
+        if (set(board, y, x, type, 1))
+            ret += cover(board);
+        // 덮었던 블록을 치운다.
+        set(board, y, x, type, -1);
+    }
+    return ret;
+}
+
+## 코드 6
+
+### 여행하는 외판원 문제를 해결하는 재귀 호출 알고리즘
+- shortestPath(path) = path가 지금까지 만든 경로일 때, 나머지 도시들을 모두 방문하는 경로들 중 가장 짧은 것의 길이를 반환한다.
+
+```cpp
+int n_city = 8;
+double dist[8][8]; // 두 도시 간의 거리를 저장하는 배열
+const int INF = 99999;
+// path: 지금까지 만든 경로
+// visited: 각 도시의 방문 여부
+// currentLength: 지금까지 만든 경로의 길이
+// 나머지 도시들을 모두 방문하는 경로들 중 가장 짧은 것의 길이를 반환한다.
+double shortestPath(vector<int> &path, vector<bool> &visited, double currentLength){
+    // 기저 사례: 모든 도시를 다 방문했을때는 시작 도시로 돌아가고 종료한다.
+    if (path.size() == n_city)
+        return currentLength + dist[path[0]][path.back()];
+    double ret = INF; // 매우 큰 값으로 초기화
+    // 다음 방문할 도시를 전부 시도해본다.
+    for (int next = 0; next < n; ++next){
+        if (visited[next]) continue;
+        int here = path.back();
+        path.push_back(next);
+        visited[next] = true;
+        // 나머지 경로를 재귀 호출을 통해 완성하고 가장 짧은 경로의 길이를 얻는다.
+        double cand = shortestPath(path, visited, currentLength + dist[here][next]);
+        ret = min(ret, cand);
+        visited[next] = false;
+        path.pop_back();
+    }
+    return ret;
+}
+
+## 코드 7
+
+### 시계 맞추기 문제를 해결하는 완전 탐색 알고리즘
+
+```cpp
+const int SWITCHES = 10, CLOCKS = 16;
+// linked[i][j] = 'x': i번 스위치와 j번 시계가 연결되어 있다.
+// linked[i][j] = '.': i번 스위치와 j번 시계가 연결되어 있지 않다.
+const char linked[SWITCHES][CLOCKS + 1] = {
+  // 0123456789012345
+    "xxx.............",
+    "...x...x.x.x....",
+    "....x.....x...xx",
+    "x...xxxx........",
+    "......xxx.x.x...",
+    "x.x...........xx",
+    "...x..........xx",
+    "....xx.x......xx",
+    ".xxxxx..........",
+    "...xxx...x...x.."
+};
+// 모든 시계가 12시를 가리키고 있는지 확인한다.
+bool areAligned(const vector<int> &clocks){
+    bool isAligned = true;
+    for (int clock: clocks){
+        isAligned = isAligned && (clock == 12);
+    }
+    return isAligned;
+}
+void push(vector<int> &clocks, int swtch){
+    for (int clock = 0; clock < CLOCKS; ++clock){
+        if (linked[swtch][clock] == 'x'){
+            clocks[clock] += 3;
+            if (clocks[clock] == 15) clocks[clock] = 3;
+        }
+    }
+}
+// clocks: 현재 시계들의 상태
+// swtch: 이번에 누를 스위치의 번호
+// 가 주어질 때, 남은 스위치들을 눌러서 clocks를 12시로 맞출 수 있는 최소 횟수를 반환한다.
+// 만약 불가능하다면 INF 이상의 큰 수를 반환한다.
+int solve(vector<int> &clocks, int swtch){
+    if (swtch == SWITCHES) return areAligned(clocks) ? 0 : INF;
+    // 이 스위치를 0번 누를 경우부터 세 번 누르는 경우까지를 모두 시도한다.
+    int ret = INF;
+    for (int cnt = 0; cnt < 4; ++cnt){
+        ret = min(ret, cnt + solve(clocks, swtch + 1));
+        push(clocks, swtch);
+    }
+    // push(clocks, swtch)가 네 번 호출되었으니, clocks는 원래와 같은 상태가 된다.
+    return ret;
+}
+```
