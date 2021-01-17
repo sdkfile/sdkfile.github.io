@@ -8,7 +8,7 @@ isme2n:
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
   about:             |
-    음악도 만들고, 개발도 하는 사람
+    개발을 하고, 가끔 음악을 만듭니다.
 
   # This photo will be used in the about section
   picture:
