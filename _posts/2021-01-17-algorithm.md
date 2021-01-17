@@ -195,6 +195,7 @@ int cover(vector<vector<int> > &board){
     }
     return ret;
 }
+```
 
 ## 코드 6
 
@@ -228,6 +229,7 @@ double shortestPath(vector<int> &path, vector<bool> &visited, double currentLeng
     }
     return ret;
 }
+```
 
 ## 코드 7
 
