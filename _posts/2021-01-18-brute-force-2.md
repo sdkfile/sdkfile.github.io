@@ -33,6 +33,7 @@ comments: true
 - 11과 011은 같은 숫자로 취급합니다.
 
 
+## 코드
 ```cpp
 #include <vector>
 #include <cmath>
@@ -41,6 +42,7 @@ using namespace std;
 
 vector<int> primes;
 
+// 입력 n이 소수인지 여부를 판단합니다.
 bool isPrime(int n){
     if (n <= 1) return false;
     else if (n == 2 || n == 3) return true;
@@ -52,6 +54,8 @@ bool isPrime(int n){
     return true;
 }
 
+// 뽑은 순열 picked와 이에 대응하는 숫자로 구성된 문자열 numbers를 이용하여 만들어진 숫자를 반환하고,
+// 소수인지 판별하여 소수 벡터에 push합니다.
 void ifPrimeAddNumber(vector<int> &picked, string numbers){
     int outout = 0;
     for (int i = 0; i < picked.size(); ++i){
