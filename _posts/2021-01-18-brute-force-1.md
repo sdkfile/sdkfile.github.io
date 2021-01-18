@@ -1,6 +1,6 @@
 ---
 layout: post
-title: '완전탐색 문제풀이 #1'
+title: '완전탐색 문제풀이 #1 : 모의고사(프로그래머스), C++'
 subtitle: '프로그래머스 모의고사 C++'
 categories: algorithm
 tags: problem
