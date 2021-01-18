@@ -52,8 +52,10 @@ const int Slist2[8] = { 2, 1, 2, 3, 2, 4, 2, 5 };
 const int Slist3[10] = { 3, 3, 1, 1, 2, 2, 4, 4, 5, 5 };
 
 vector<int> solution(vector<int> answers) {    
-    // 
+    // 수포자들의 정답 배열을 초기화
     vector<int> Supos(3, 0);
+    
+    // 각 수포자들에 대해서 찍은 결괏값이 같으면 Supos 배열의 각 인덱스에 값 1씩 추가
     for (int i = 0; i < answers.size(); ++i){
         if (answers[i] == Slist1[i % 5]){
            ++Supos[0];
@@ -65,7 +67,10 @@ vector<int> solution(vector<int> answers) {
            ++Supos[2];
         }
     }
+    // 수포자 1, 2, 3중 가장 높은 점수를 먼저 뽑는다.
     int maxvalue = max(max(Supos[0], Supos[1]), Supos[2]);
+    
+    // 가장 높은 점수를 얻은 수포자들을 벡터에 넣어서 반환한다.
     vector<int> answer;
     for (int i = 0; i < Supos.size(); ++i){
         if (Supos[i] == maxvalue){
