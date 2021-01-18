@@ -1,7 +1,7 @@
 ---
 layout: post
-title: '완전탐색 문제풀이 #2'
-subtitle: '프로그래머스 소수찾기 C++'
+title: '완전탐색 문제풀이 #3 : 카펫(프로그래머스), C++'
+subtitle: '프로그래머스 카펫 C++'
 categories: algorithm
 tags: problem
 comments: true
