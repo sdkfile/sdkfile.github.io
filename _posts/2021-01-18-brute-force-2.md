@@ -1,6 +1,6 @@
 ---
 layout: post
-title: '완전탐색 문제풀이 #2'
+title: '완전탐색 문제풀이 #2 : 소수찾기(프로그래머스), C++'
 subtitle: '프로그래머스 소수찾기 C++'
 categories: algorithm
 tags: problem
